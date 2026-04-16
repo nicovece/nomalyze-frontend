@@ -4,6 +4,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { searchRecipes, getSearchStats } from '@/api/recipes'
 import SearchForm from '@/components/recipes/SearchForm.vue'
 import SearchResults from '@/components/recipes/SearchResults.vue'
+import CookingTimeBar from '@/components/charts/CookingTimeBar.vue'
+import DifficultyPie from '@/components/charts/DifficultyPie.vue'
+import IngredientTimeLine from '@/components/charts/IngredientTimeLine.vue'
 import type { Recipe, SearchParams, SearchStats } from '@/types/recipe'
 
 const router = useRouter()
@@ -85,17 +88,11 @@ if (initialParams.name || initialParams.ingredients || initialParams.cooking_tim
 
     <!-- Results (only shown after a search) -->
     <template v-else-if="hasSearched">
-      <!-- Charts placeholder — Step 9 -->
+      <!-- Charts -->
       <div v-if="stats" class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div class="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
-          <p class="text-sm text-alternate-a-700">Bar chart — Step 9</p>
-        </div>
-        <div class="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
-          <p class="text-sm text-alternate-a-700">Pie chart — Step 9</p>
-        </div>
-        <div class="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
-          <p class="text-sm text-alternate-a-700">Line chart — Step 9</p>
-        </div>
+        <CookingTimeBar :data="stats.cooking_times" />
+        <DifficultyPie :data="stats.difficulty_distribution" />
+        <IngredientTimeLine :data="stats.ingredient_time_data" />
       </div>
 
       <div class="mt-8">
