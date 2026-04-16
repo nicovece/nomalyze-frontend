@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { getRecipes } from '@/api/recipes'
 import RecipeCard from '@/components/recipes/RecipeCard.vue'
+import AppToast from '@/components/layout/AppToast.vue'
 import type { Recipe } from '@/types/recipe'
 
 const recipes = ref<Recipe[]>([])
@@ -40,6 +41,9 @@ onMounted(() => fetchRecipes(1))
       {{ totalCount }} recipe{{ totalCount !== 1 ? 's' : '' }} in the collection
     </p>
 
+    <!-- Error toast -->
+    <AppToast :message="error" type="error" @dismiss="error = ''" />
+
     <!-- Loading state -->
     <div v-if="loading" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <div
@@ -47,11 +51,6 @@ onMounted(() => fetchRecipes(1))
         :key="n"
         class="h-72 animate-pulse rounded-lg bg-ground-a-100"
       />
-    </div>
-
-    <!-- Error state -->
-    <div v-else-if="error" class="mt-8 rounded-md bg-red-50 p-4 text-red-700">
-      {{ error }}
     </div>
 
     <!-- Empty state -->

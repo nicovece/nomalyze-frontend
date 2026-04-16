@@ -7,6 +7,7 @@ import SearchResults from '@/components/recipes/SearchResults.vue'
 import CookingTimeBar from '@/components/charts/CookingTimeBar.vue'
 import DifficultyPie from '@/components/charts/DifficultyPie.vue'
 import IngredientTimeLine from '@/components/charts/IngredientTimeLine.vue'
+import AppToast from '@/components/layout/AppToast.vue'
 import type { Recipe, SearchParams, SearchStats } from '@/types/recipe'
 
 const router = useRouter()
@@ -81,13 +82,11 @@ if (initialParams.name || initialParams.ingredients || initialParams.cooking_tim
       </div>
     </div>
 
-    <!-- Error -->
-    <div v-else-if="error" class="mt-8 rounded-md bg-red-50 p-4 text-red-700">
-      {{ error }}
-    </div>
+    <!-- Error toast -->
+    <AppToast :message="error" type="error" @dismiss="error = ''" />
 
     <!-- Results (only shown after a search) -->
-    <template v-else-if="hasSearched">
+    <template v-if="!loading && hasSearched">
       <!-- Charts -->
       <div v-if="stats" class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <CookingTimeBar :data="stats.cooking_times" />
