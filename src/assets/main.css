@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand colors — matching the Django backend palette */
+  --color-ground-a-50: #fdfbf7;
+  --color-ground-a-100: #F7F0DE;
+  --color-ground-a-200: #efe0c0;
+  --color-ground-a-300: #e6d0a2;
+  --color-ground-a-400: #D7B25B;
+  --color-ground-a-500: #d1a94a;
+  --color-ground-a-600: #c99a3a;
+  --color-ground-a-700: #b8862e;
+  --color-ground-a-800: #966e28;
+  --color-ground-a-900: #7a5a26;
+
+  --color-ground-b: #c0a659;
+
+  --color-alternate-a-100: #E2F3EE;
+  --color-alternate-a-200: #BAE2D6;
+  --color-alternate-a-300: #8CCFBB;
+  --color-alternate-a-400: #6fc3aa;
+  --color-alternate-a-500: #55b799;
+  --color-alternate-a-700: #6A7572;
+  --color-alternate-a-800: #162722;
+
+  --color-alternate-b: #a9c57c;
+
+  --color-accent-100: #FDE5D3;
+  --color-accent-300: #F8B27A;
+  --color-accent-400: #F47F21;
+  --color-accent-600: #E36F10;
+  --color-accent-800: #61330D;
+  --color-accent-900: #311907;
+
+  /* Typography */
+  --font-serif: "Merriweather", serif;
+}
