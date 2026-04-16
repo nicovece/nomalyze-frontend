@@ -1,10 +1,106 @@
 <script setup lang="ts">
-// Will be implemented in Step 8
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { searchRecipes, getSearchStats } from '@/api/recipes'
+import SearchForm from '@/components/recipes/SearchForm.vue'
+import SearchResults from '@/components/recipes/SearchResults.vue'
+import type { Recipe, SearchParams, SearchStats } from '@/types/recipe'
+
+const router = useRouter()
+const route = useRoute()
+
+const recipes = ref<Recipe[]>([])
+const stats = ref<SearchStats | null>(null)
+const loading = ref(false)
+const error = ref('')
+const hasSearched = ref(false)
+
+async function handleSearch(params: SearchParams) {
+  loading.value = true
+  error.value = ''
+  hasSearched.value = true
+
+  // Sync search params to URL query string
+  const query: Record<string, string> = {}
+  if (params.name) query.name = params.name
+  if (params.ingredients) query.ingredients = params.ingredients
+  if (params.cooking_time_max) query.cooking_time_max = String(params.cooking_time_max)
+  if (params.difficulty) query.difficulty = params.difficulty
+  if (params.show_all) query.show_all = 'true'
+  router.replace({ query })
+
+  try {
+    const [recipeData, statsData] = await Promise.all([
+      searchRecipes(params),
+      getSearchStats(params),
+    ])
+    recipes.value = recipeData.results
+    stats.value = statsData
+  } catch {
+    error.value = 'Search failed. Please try again.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// If URL has query params on mount (shared link), trigger search
+const initialParams = route.query
+if (initialParams.name || initialParams.ingredients || initialParams.cooking_time_max || initialParams.difficulty || initialParams.show_all) {
+  handleSearch({
+    name: initialParams.name as string | undefined,
+    ingredients: initialParams.ingredients as string | undefined,
+    cooking_time_max: initialParams.cooking_time_max ? Number(initialParams.cooking_time_max) : undefined,
+    difficulty: initialParams.difficulty as string | undefined,
+    show_all: initialParams.show_all === 'true' || undefined,
+  })
+}
 </script>
 
 <template>
-  <div class="p-8">
-    <h1 class="font-serif text-3xl font-bold text-alternate-a-800">Search</h1>
-    <p class="mt-4 text-alternate-a-700">Search coming soon.</p>
-  </div>
+  <main class="mx-auto max-w-6xl px-4 py-8">
+    <h1 class="font-serif text-3xl font-bold text-alternate-a-800">Search &amp; Analyze</h1>
+    <p class="mt-1 text-alternate-a-700">
+      Search with wildcards (* for any characters, ? for single character)
+    </p>
+
+    <div class="mt-6">
+      <SearchForm @search="handleSearch" />
+    </div>
+
+    <!-- Loading -->
+    <div v-if="loading" class="mt-8">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="n in 6"
+          :key="n"
+          class="h-72 animate-pulse rounded-lg bg-ground-a-100"
+        />
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="mt-8 rounded-md bg-red-50 p-4 text-red-700">
+      {{ error }}
+    </div>
+
+    <!-- Results (only shown after a search) -->
+    <template v-else-if="hasSearched">
+      <!-- Charts placeholder — Step 9 -->
+      <div v-if="stats" class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
+          <p class="text-sm text-alternate-a-700">Bar chart — Step 9</p>
+        </div>
+        <div class="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
+          <p class="text-sm text-alternate-a-700">Pie chart — Step 9</p>
+        </div>
+        <div class="flex h-64 items-center justify-center rounded-lg bg-white shadow-md">
+          <p class="text-sm text-alternate-a-700">Line chart — Step 9</p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <SearchResults :recipes="recipes" />
+      </div>
+    </template>
+  </main>
 </template>
