@@ -33,7 +33,11 @@ function refreshAccessToken(): Promise<string> {
   }
 
   const authStore = useAuthStore()
+  // Snapshot the refresh token — the same one must stay valid for the duration
+  // of the POST below, and the store won't clear it until we resolve/reject.
   const refreshToken = authStore.refreshToken
+  // Defensive guard: callers already pre-check, but keep this so the function
+  // remains safe if ever invoked from a new call site without that pre-check.
   if (!refreshToken) {
     return Promise.reject(new Error('No refresh token available'))
   }
