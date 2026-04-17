@@ -8,9 +8,10 @@
 
   "compilerOptions": {
     // Vitest runs in a different environment than the application code.
-    // Adjust lib and types accordingly.
-    "lib": [],
-    "types": ["node", "jsdom"],
+    // happy-dom ships no ambient types, so we rely on the DOM lib for
+    // window/document/etc. in test files.
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node"],
 
     // `vue-tsc --build` produces a .tsbuildinfo file for incremental type-checking.
     // Specified here to keep it out of the root directory.
