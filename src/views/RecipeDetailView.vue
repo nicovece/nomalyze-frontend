@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getRecipe } from '@/api/recipes'
 import type { Recipe } from '@/types/recipe'
+import { difficultyTextClass } from '@/utils/difficulty'
 
 const route = useRoute()
 const router = useRouter()
@@ -61,13 +62,8 @@ onMounted(async () => {
       <div class="mt-3 flex items-center gap-4 text-sm text-alternate-a-700">
         <span>{{ recipe.cooking_time }} minutes</span>
         <span
-          :class="{
-            'bg-ground-b': recipe.difficulty === 'Easy',
-            'bg-alternate-b': recipe.difficulty === 'Medium',
-            'bg-alternate-a-400': recipe.difficulty === 'Intermediate',
-            'bg-accent-400': recipe.difficulty === 'Hard',
-          }"
-          class="rounded-full px-2 py-0.5 text-xs font-medium text-white"
+          :class="difficultyTextClass[recipe.difficulty]"
+          class="rounded-full px-2 py-0.5 text-xs font-medium"
         >
           {{ recipe.difficulty }}
         </span>

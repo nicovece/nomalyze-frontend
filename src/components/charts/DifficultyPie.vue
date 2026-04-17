@@ -2,19 +2,14 @@
 import { computed } from 'vue'
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from 'chart.js'
+import type { Recipe } from '@/types/recipe'
+import { difficultyHex, difficultyHexFallback } from '@/utils/difficulty'
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title)
 
 const props = defineProps<{
   data: Record<string, number>
 }>()
-
-const difficultyColors: Record<string, string> = {
-  Easy: '#c0a659',
-  Medium: '#a9c57c',
-  Intermediate: '#6fc3aa',
-  Hard: '#f37f20',
-}
 
 const chartData = computed(() => {
   const labels = Object.keys(props.data)
@@ -23,7 +18,9 @@ const chartData = computed(() => {
     datasets: [
       {
         data: Object.values(props.data),
-        backgroundColor: labels.map((l) => difficultyColors[l] || '#d7b25b'),
+        backgroundColor: labels.map(
+          (l) => difficultyHex[l as Recipe['difficulty']] ?? difficultyHexFallback,
+        ),
       },
     ],
   }

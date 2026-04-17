@@ -1,17 +1,11 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import type { Recipe } from '@/types/recipe'
+import { difficultyTextClass } from '@/utils/difficulty'
 
 defineProps<{
   recipe: Recipe
 }>()
-
-const difficultyColor: Record<string, string> = {
-  Easy: 'bg-ground-b text-white',
-  Medium: 'bg-alternate-b text-white',
-  Intermediate: 'bg-alternate-a-400 text-white',
-  Hard: 'bg-accent-400 text-white',
-}
 </script>
 
 <template>
@@ -41,7 +35,7 @@ const difficultyColor: Record<string, string> = {
           {{ recipe.cooking_time }} min
         </span>
         <span
-          :class="difficultyColor[recipe.difficulty]"
+          :class="difficultyTextClass[recipe.difficulty]"
           class="rounded-full px-2 py-0.5 text-xs font-medium"
         >
           {{ recipe.difficulty }}
