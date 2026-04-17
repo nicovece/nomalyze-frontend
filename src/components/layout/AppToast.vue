@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 
 const props = defineProps<{
   message: string
@@ -12,19 +12,38 @@ const emit = defineEmits<{
 
 const visible = ref(false)
 
+// Track active timers so new messages cancel stale ones and we clean up
+// on unmount — otherwise a route change mid-timeout fires into a dead component.
+let hideTimer: ReturnType<typeof setTimeout> | null = null
+let dismissTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearTimers() {
+  if (hideTimer) {
+    clearTimeout(hideTimer)
+    hideTimer = null
+  }
+  if (dismissTimer) {
+    clearTimeout(dismissTimer)
+    dismissTimer = null
+  }
+}
+
 watch(
   () => props.message,
   (msg) => {
+    clearTimers()
     if (msg) {
       visible.value = true
-      setTimeout(() => {
+      hideTimer = setTimeout(() => {
         visible.value = false
-        setTimeout(() => emit('dismiss'), 200)
+        dismissTimer = setTimeout(() => emit('dismiss'), 200)
       }, 4000)
     }
   },
   { immediate: true },
 )
+
+onBeforeUnmount(clearTimers)
 </script>
 
 <template>
@@ -37,7 +56,14 @@ watch(
     >
       <div class="flex items-center justify-between gap-3">
         <p class="text-sm">{{ message }}</p>
-        <button @click="visible = false" class="text-white/80 hover:text-white">&times;</button>
+        <button
+          type="button"
+          @click="visible = false"
+          aria-label="Dismiss notification"
+          class="text-white/80 hover:text-white"
+        >
+          &times;
+        </button>
       </div>
     </div>
   </Transition>
