@@ -15,6 +15,17 @@ const apiClient = axios.create({
 // the refresh token on the second concurrent call.
 let refreshPromise: Promise<string> | null = null
 
+/** Send the user to /login, preserving where they came from for post-login bounce-back. */
+function redirectToLogin() {
+  const currentPath = router.currentRoute.value.fullPath
+  // Avoid ?redirect=/login if we're already on the login page.
+  const isOnLogin = router.currentRoute.value.name === 'login'
+  router.push({
+    name: 'login',
+    query: isOnLogin ? undefined : { redirect: currentPath },
+  })
+}
+
 /** Refresh the access token, deduping concurrent calls into one network request. */
 function refreshAccessToken(): Promise<string> {
   if (refreshPromise) {
@@ -76,7 +87,7 @@ apiClient.interceptors.response.use(
       if (!authStore.refreshToken) {
         // No refresh token — user must log in
         authStore.logout()
-        router.push({ name: 'login' })
+        redirectToLogin()
         return Promise.reject(error)
       }
 
@@ -87,7 +98,7 @@ apiClient.interceptors.response.use(
       } catch {
         // Refresh failed — session is truly expired
         authStore.logout()
-        router.push({ name: 'login' })
+        redirectToLogin()
         return Promise.reject(error)
       }
     }
