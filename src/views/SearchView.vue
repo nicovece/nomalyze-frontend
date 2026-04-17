@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute, type LocationQuery } from 'vue-router'
 import { searchRecipes, getSearchStats } from '@/api/recipes'
 import SearchForm from '@/components/recipes/SearchForm.vue'
 import SearchResults from '@/components/recipes/SearchResults.vue'
@@ -19,19 +19,38 @@ const stats = ref<SearchStats | null>(null)
 const loading = ref(false)
 const hasSearched = ref(false)
 
-async function handleSearch(params: SearchParams) {
+// Read the URL and convert to typed SearchParams. Unknown / malformed
+// values become `undefined` (never coerce NaN or "false" literals).
+function queryToParams(q: LocationQuery): SearchParams {
+  const time = typeof q.cooking_time_max === 'string' ? Number(q.cooking_time_max) : NaN
+  return {
+    name: typeof q.name === 'string' ? q.name : undefined,
+    ingredients: typeof q.ingredients === 'string' ? q.ingredients : undefined,
+    cooking_time_max: Number.isFinite(time) ? time : undefined,
+    difficulty: typeof q.difficulty === 'string' ? q.difficulty : undefined,
+    show_all: q.show_all === 'true' || undefined,
+  }
+}
+
+function paramsToQuery(p: SearchParams): Record<string, string> {
+  const q: Record<string, string> = {}
+  if (p.name) q.name = p.name
+  if (p.ingredients) q.ingredients = p.ingredients
+  if (p.cooking_time_max) q.cooking_time_max = String(p.cooking_time_max)
+  if (p.difficulty) q.difficulty = p.difficulty
+  if (p.show_all) q.show_all = 'true'
+  return q
+}
+
+function hasAnySearchParam(p: SearchParams): boolean {
+  return Boolean(
+    p.name || p.ingredients || p.cooking_time_max || p.difficulty || p.show_all,
+  )
+}
+
+async function runSearch(params: SearchParams) {
   loading.value = true
   hasSearched.value = true
-
-  // Sync search params to URL query string
-  const query: Record<string, string> = {}
-  if (params.name) query.name = params.name
-  if (params.ingredients) query.ingredients = params.ingredients
-  if (params.cooking_time_max) query.cooking_time_max = String(params.cooking_time_max)
-  if (params.difficulty) query.difficulty = params.difficulty
-  if (params.show_all) query.show_all = 'true'
-  router.replace({ query })
-
   try {
     const [recipeData, statsData] = await Promise.all([
       searchRecipes(params),
@@ -46,17 +65,33 @@ async function handleSearch(params: SearchParams) {
   }
 }
 
-// If URL has query params on mount (shared link), trigger search
-const initialParams = route.query
-if (initialParams.name || initialParams.ingredients || initialParams.cooking_time_max || initialParams.difficulty || initialParams.show_all) {
-  handleSearch({
-    name: initialParams.name as string | undefined,
-    ingredients: initialParams.ingredients as string | undefined,
-    cooking_time_max: initialParams.cooking_time_max ? Number(initialParams.cooking_time_max) : undefined,
-    difficulty: initialParams.difficulty as string | undefined,
-    show_all: initialParams.show_all === 'true' || undefined,
-  })
+// Form submit updates the URL; the watch below handles the API call.
+// Single source of truth: URL → search state.
+function handleSearch(params: SearchParams) {
+  router.replace({ query: paramsToQuery(params) })
 }
+
+watch(
+  () => route.query,
+  (q) => {
+    const params = queryToParams(q)
+    if (hasAnySearchParam(params)) {
+      runSearch(params)
+    }
+  },
+  { immediate: true },
+)
+
+// Initial form values come from the URL — passed as a prop so the inputs
+// reflect ?name=pasta on a shared link. Recomputed on every URL change
+// so Back/Forward keeps the form in sync with the results.
+const initialFormValues = ref<SearchParams>(queryToParams(route.query))
+watch(
+  () => route.query,
+  (q) => {
+    initialFormValues.value = queryToParams(q)
+  },
+)
 </script>
 
 <template>
@@ -67,7 +102,7 @@ if (initialParams.name || initialParams.ingredients || initialParams.cooking_tim
     </p>
 
     <div class="mt-6">
-      <SearchForm @search="handleSearch" />
+      <SearchForm :initial-values="initialFormValues" @search="handleSearch" />
     </div>
 
     <!-- Loading -->

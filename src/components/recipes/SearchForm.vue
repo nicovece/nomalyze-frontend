@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { SearchParams } from '@/types/recipe'
+
+const props = defineProps<{
+  initialValues?: SearchParams
+}>()
 
 const emit = defineEmits<{
   search: [params: SearchParams]
@@ -10,6 +14,20 @@ const name = ref('')
 const ingredients = ref('')
 const cookingTimeMax = ref<number | undefined>()
 const difficulty = ref('')
+
+// Keep inputs in sync with the URL-driven initial values. The parent
+// recomputes `initialValues` on every route.query change so Back/Forward
+// navigation repopulates the form too.
+watch(
+  () => props.initialValues,
+  (vals) => {
+    name.value = vals?.name ?? ''
+    ingredients.value = vals?.ingredients ?? ''
+    cookingTimeMax.value = vals?.cooking_time_max
+    difficulty.value = vals?.difficulty ?? ''
+  },
+  { immediate: true },
+)
 
 function handleSearch() {
   emit('search', {
