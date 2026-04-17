@@ -9,6 +9,44 @@ const apiClient = axios.create({
   },
 })
 
+// Module-level state for the single-flight refresh.
+// If a refresh is in flight, all 401-handlers await this same promise
+// instead of each starting their own — prevents SimpleJWT from invalidating
+// the refresh token on the second concurrent call.
+let refreshPromise: Promise<string> | null = null
+
+/** Refresh the access token, deduping concurrent calls into one network request. */
+function refreshAccessToken(): Promise<string> {
+  if (refreshPromise) {
+    return refreshPromise
+  }
+
+  const authStore = useAuthStore()
+  const refreshToken = authStore.refreshToken
+  if (!refreshToken) {
+    return Promise.reject(new Error('No refresh token available'))
+  }
+
+  refreshPromise = axios
+    .post(`${apiClient.defaults.baseURL}/api/auth/token/refresh/`, {
+      refresh: refreshToken,
+    })
+    .then(({ data }) => {
+      const token = data.access
+      if (typeof token !== 'string' || !token) {
+        throw new Error('Refresh response missing access token')
+      }
+      authStore.setAccessToken(token)
+      return token
+    })
+    .finally(() => {
+      // Clear so the next genuine 401 (after a successful run) starts fresh
+      refreshPromise = null
+    })
+
+  return refreshPromise
+}
+
 // Request interceptor — attach JWT access token to every request.
 // `useAuthStore()` is called lazily inside the callback, not at module top level,
 // because this module participates in a circular import (client → stores/auth →
@@ -43,16 +81,8 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        // Request a new access token using the refresh token
-        const { data } = await axios.post(
-          `${apiClient.defaults.baseURL}/api/auth/token/refresh/`,
-          { refresh: authStore.refreshToken },
-        )
-
-        authStore.setAccessToken(data.access)
-
-        // Retry the original request with the new token
-        originalRequest.headers.Authorization = `Bearer ${data.access}`
+        const newAccessToken = await refreshAccessToken()
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         return apiClient(originalRequest)
       } catch {
         // Refresh failed — session is truly expired
