@@ -7,21 +7,20 @@ import SearchResults from '@/components/recipes/SearchResults.vue'
 import CookingTimeBar from '@/components/charts/CookingTimeBar.vue'
 import DifficultyPie from '@/components/charts/DifficultyPie.vue'
 import IngredientTimeLine from '@/components/charts/IngredientTimeLine.vue'
-import AppToast from '@/components/layout/AppToast.vue'
+import { useToastStore } from '@/stores/toast'
 import type { Recipe, SearchParams, SearchStats } from '@/types/recipe'
 
 const router = useRouter()
 const route = useRoute()
+const toastStore = useToastStore()
 
 const recipes = ref<Recipe[]>([])
 const stats = ref<SearchStats | null>(null)
 const loading = ref(false)
-const error = ref('')
 const hasSearched = ref(false)
 
 async function handleSearch(params: SearchParams) {
   loading.value = true
-  error.value = ''
   hasSearched.value = true
 
   // Sync search params to URL query string
@@ -41,7 +40,7 @@ async function handleSearch(params: SearchParams) {
     recipes.value = recipeData.results
     stats.value = statsData
   } catch {
-    error.value = 'Search failed. Please try again.'
+    toastStore.showError('Search failed. Please try again.')
   } finally {
     loading.value = false
   }
@@ -81,9 +80,6 @@ if (initialParams.name || initialParams.ingredients || initialParams.cooking_tim
         />
       </div>
     </div>
-
-    <!-- Error toast -->
-    <AppToast :message="error" type="error" @dismiss="error = ''" />
 
     <!-- Results (only shown after a search) -->
     <template v-if="!loading && hasSearched">

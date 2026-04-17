@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useToastStore } from '@/stores/toast'
+import AppToast from '@/components/layout/AppToast.vue'
 
 const authStore = useAuthStore()
+const toastStore = useToastStore()
+const { message: toastMessage, type: toastType } = storeToRefs(toastStore)
 const router = useRouter()
 const mobileMenuOpen = ref(false)
 
@@ -109,6 +113,8 @@ function logout() {
         <component :is="Component" />
       </Transition>
     </RouterView>
+
+    <AppToast :message="toastMessage" :type="toastType" @dismiss="toastStore.dismiss()" />
   </div>
 </template>
 

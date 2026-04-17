@@ -2,28 +2,26 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const toastStore = useToastStore()
 
 const username = ref('')
 const password = ref('')
-const error = ref('')
 const loading = ref(false)
 
 async function handleLogin() {
-  error.value = ''
   loading.value = true
 
   try {
     await authStore.login(username.value, password.value)
-
-    // Redirect to intended page, or recipes list as default
     const redirect = (route.query.redirect as string) || '/recipes'
     router.push(redirect)
   } catch {
-    error.value = 'Invalid username or password.'
+    toastStore.showError('Invalid username or password.')
   } finally {
     loading.value = false
   }
@@ -38,10 +36,6 @@ async function handleLogin() {
       </h1>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
-        <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-700">
-          {{ error }}
-        </div>
-
         <div>
           <label for="username" class="mb-1 block text-sm font-medium text-alternate-a-700">
             Username
