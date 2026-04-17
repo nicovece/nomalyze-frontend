@@ -1,5 +1,6 @@
 import axios from 'axios'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
@@ -8,11 +9,14 @@ const apiClient = axios.create({
   },
 })
 
-// Request interceptor — attach JWT access token to every request
+// Request interceptor — attach JWT access token to every request.
+// `useAuthStore()` is called lazily inside the callback, not at module top level,
+// because this module participates in a circular import (client → stores/auth →
+// api/auth → client) and Pinia isn't installed until after app bootstrap.
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  const authStore = useAuthStore()
+  if (authStore.accessToken) {
+    config.headers.Authorization = `Bearer ${authStore.accessToken}`
   }
   return config
 })
@@ -25,15 +29,15 @@ apiClient.interceptors.response.use(
   // Error — check if it's a 401 we can recover from
   async (error) => {
     const originalRequest = error.config
+    const authStore = useAuthStore()
 
     // Only attempt refresh once per request (prevent infinite loops)
     if (error.response?.status === 401 && !originalRequest._retried) {
       originalRequest._retried = true
 
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (!refreshToken) {
+      if (!authStore.refreshToken) {
         // No refresh token — user must log in
-        localStorage.removeItem('access_token')
+        authStore.logout()
         router.push({ name: 'login' })
         return Promise.reject(error)
       }
@@ -42,18 +46,17 @@ apiClient.interceptors.response.use(
         // Request a new access token using the refresh token
         const { data } = await axios.post(
           `${apiClient.defaults.baseURL}/api/auth/token/refresh/`,
-          { refresh: refreshToken },
+          { refresh: authStore.refreshToken },
         )
 
-        localStorage.setItem('access_token', data.access)
+        authStore.setAccessToken(data.access)
 
         // Retry the original request with the new token
         originalRequest.headers.Authorization = `Bearer ${data.access}`
         return apiClient(originalRequest)
       } catch {
         // Refresh failed — session is truly expired
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
+        authStore.logout()
         router.push({ name: 'login' })
         return Promise.reject(error)
       }
