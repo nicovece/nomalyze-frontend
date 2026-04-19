@@ -42,7 +42,10 @@ A Vue 3 single-page application for recipe management and analytics. This is the
 git clone <repository-url>
 cd nomalyze-frontend
 pnpm install
+cp .env.example .env
 ```
+
+The `.env` file is gitignored. Edit it if your backend runs on a non-default URL.
 
 ### Development
 
@@ -122,6 +125,15 @@ The backend serves HTML templates for the existing app. The Vue SPA is a separat
 
 The SPA runs on a different origin (`localhost:5173`) than the backend (`localhost:8000`). Session cookies have SameSite and CSRF complications across origins. JWT tokens are sent via headers, making cross-origin auth straightforward. The two auth systems coexist — the backend still uses sessions for its template views.
 
+### Why store JWTs in `localStorage` instead of `HttpOnly` cookies?
+
+Two viable storage strategies for JWTs in an SPA:
+
+- **`localStorage` (current choice):** Tokens are read/written from JavaScript and attached to requests via the `Authorization` header. Simple to wire and works seamlessly across origins with no CSRF dance. The cost is that any successful XSS — a compromised dependency, a CDN MITM, a DOM-based injection — can exfiltrate both tokens.
+- **`HttpOnly` cookies:** Tokens are unreadable from JavaScript, so XSS can't lift them. The cost is needing CSRF protection (double-submit cookie or token) and tighter coupling to backend cookie handling across origins (`SameSite=None; Secure` plus careful `Access-Control-Allow-Credentials` and per-route CSRF middleware).
+
+The current XSS surface in this app is small: no `v-html`, no `eval`, no `dangerouslySetInnerHTML`-style escape hatches, and dependencies are version-locked via `pnpm-lock.yaml`. The residual dependency-chain risk (a malicious update to a transitive dep) is real but accepted for a portfolio app. A production deployment with broader exposure should reconsider — token reads are isolated to `src/stores/auth.ts` and `src/api/client.ts`, so swapping the storage layer is a localized refactor rather than an architectural change.
+
 ### Why Chart.js over server-side matplotlib?
 
 Matplotlib generates static PNG images on the server. Chart.js renders interactive charts in the browser — hover tooltips, animations, responsive resizing. The server only sends raw JSON data, reducing load and bandwidth. Charts update reactively when search results change, with no round-trip needed.
@@ -136,11 +148,11 @@ Pinia is the official recommended state management for Vue 3. It has full TypeSc
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `VITE_API_BASE_URL` | `http://localhost:8000` | Django backend URL |
+| Variable | Default | Required | Description |
+|---|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8000` | Yes | Base URL of the Django backend (no trailing slash) |
 
-Create `.env.production` for production deployment with the real backend URL.
+Local dev uses `.env` (gitignored — copy from `.env.example`). For production, either create a `.env.production` file or set the variable in your host's environment (e.g. Render env vars). Vite inlines `VITE_*` variables at build time, so the URL is baked into the bundle — rebuild after changing it.
 
 ## API Endpoints
 
