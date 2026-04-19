@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute, type LocationQuery } from 'vue-router'
 import { searchRecipes, getSearchStats } from '@/api/recipes'
 import SearchForm from '@/components/recipes/SearchForm.vue'
 import SearchResults from '@/components/recipes/SearchResults.vue'
-import CookingTimeBar from '@/components/charts/CookingTimeBar.vue'
-import DifficultyPie from '@/components/charts/DifficultyPie.vue'
-import IngredientTimeLine from '@/components/charts/IngredientTimeLine.vue'
+const CookingTimeBar = defineAsyncComponent(
+  () => import('@/components/charts/CookingTimeBar.vue'),
+)
+const DifficultyPie = defineAsyncComponent(
+  () => import('@/components/charts/DifficultyPie.vue'),
+)
+const IngredientTimeLine = defineAsyncComponent(
+  () => import('@/components/charts/IngredientTimeLine.vue'),
+)
 import { useToastStore } from '@/stores/toast'
 import type { Recipe, SearchParams, SearchStats } from '@/types/recipe'
 

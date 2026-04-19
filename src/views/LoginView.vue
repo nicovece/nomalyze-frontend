@@ -20,8 +20,13 @@ async function handleLogin() {
     await authStore.login(username.value, password.value)
     const redirect = (route.query.redirect as string) || '/recipes'
     router.push(redirect)
-  } catch {
-    toastStore.showError('Invalid username or password.')
+  } catch (error) {
+    const status = (error as { response?: { status?: number } })?.response?.status
+    if (status === 401) {
+      toastStore.showError('Invalid username or password.')
+    } else {
+      toastStore.showError('Sign in failed. Please try again later.')
+    }
   } finally {
     loading.value = false
   }

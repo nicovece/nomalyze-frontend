@@ -30,7 +30,7 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/recipes/:id',
+      path: '/recipes/:id(\\d+)',
       name: 'recipe-detail',
       component: () => import('@/views/RecipeDetailView.vue'),
       meta: { requiresAuth: true },
