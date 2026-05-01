@@ -50,7 +50,12 @@ onMounted(async () => {
     <!-- Recipe detail -->
     <article v-else-if="recipe">
       <img
-        :src="recipe.recipe_image"
+        v-if="recipe.recipe_image"
+        :src="recipe.recipe_image.large"
+        :srcset="`${recipe.recipe_image.medium} 800w, ${recipe.recipe_image.large} 1200w`"
+        sizes="(min-width: 1024px) 800px, 100vw"
+        loading="eager"
+        decoding="async"
         :alt="recipe.name"
         class="aspect-[16/9] w-full rounded-lg object-cover"
       />

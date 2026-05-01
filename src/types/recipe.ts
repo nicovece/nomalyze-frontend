@@ -1,3 +1,10 @@
+export interface RecipeImage {
+  original: string
+  small: string
+  medium: string
+  large: string
+}
+
 export interface Recipe {
   id: number
   name: string
@@ -8,7 +15,7 @@ export interface Recipe {
   difficulty: 'Easy' | 'Medium' | 'Intermediate' | 'Hard'
   likes: number
   references: string
-  recipe_image: string
+  recipe_image: RecipeImage | null
 }
 
 export interface PaginatedResponse<T> {

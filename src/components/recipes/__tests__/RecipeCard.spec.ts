@@ -13,7 +13,12 @@ const mockRecipe: Recipe = {
   difficulty: 'Hard',
   likes: 10,
   references: 'https://example.com',
-  recipe_image: '/media/recipes/carbonara.jpg',
+  recipe_image: {
+    original: '/media/recipes/carbonara.jpg',
+    small: '/media/CACHE/recipes/carbonara_400.jpg',
+    medium: '/media/CACHE/recipes/carbonara_800.jpg',
+    large: '/media/CACHE/recipes/carbonara_1200.jpg',
+  },
 }
 
 describe('RecipeCard', () => {
@@ -73,10 +78,18 @@ describe('RecipeCard', () => {
     expect(wrapper.text()).not.toContain('A classic Italian pasta dish.')
   })
 
-  it('renders the recipe image with correct alt text', () => {
+  it('renders the recipe image with srcset and correct alt text', () => {
     const wrapper = mountCard()
     const img = wrapper.find('img')
-    expect(img.attributes('src')).toBe('/media/recipes/carbonara.jpg')
+    expect(img.attributes('src')).toBe('/media/CACHE/recipes/carbonara_800.jpg')
+    expect(img.attributes('srcset')).toContain('/media/CACHE/recipes/carbonara_400.jpg 400w')
+    expect(img.attributes('srcset')).toContain('/media/CACHE/recipes/carbonara_800.jpg 800w')
+    expect(img.attributes('srcset')).toContain('/media/CACHE/recipes/carbonara_1200.jpg 1200w')
     expect(img.attributes('alt')).toBe('Spaghetti Carbonara')
+  })
+
+  it('omits the image element when recipe_image is null', () => {
+    const wrapper = mountCard({ ...mockRecipe, recipe_image: null })
+    expect(wrapper.find('img').exists()).toBe(false)
   })
 })

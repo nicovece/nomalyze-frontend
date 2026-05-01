@@ -15,7 +15,12 @@ defineProps<{
   >
     <div class="aspect-[4/3] overflow-hidden bg-ground-a-100">
       <img
-        :src="recipe.recipe_image"
+        v-if="recipe.recipe_image"
+        :src="recipe.recipe_image.medium"
+        :srcset="`${recipe.recipe_image.small} 400w, ${recipe.recipe_image.medium} 800w, ${recipe.recipe_image.large} 1200w`"
+        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        loading="lazy"
+        decoding="async"
         :alt="recipe.name"
         class="h-full w-full object-cover transition-transform group-hover:scale-105"
       />
