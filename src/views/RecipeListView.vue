@@ -72,7 +72,7 @@ onMounted(() => fetchRecipes(1))
       <div v-if="hasNext || hasPrevious" class="mt-8 flex items-center justify-center gap-4">
         <button
           :disabled="!hasPrevious"
-          class="rounded-md bg-alternate-a-400 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-alternate-a-500 disabled:opacity-40"
+          class="cursor-pointer rounded-md bg-alternate-a-400 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-alternate-a-500 disabled:opacity-40"
           @click="fetchRecipes(currentPage - 1)"
         >
           Previous
@@ -80,7 +80,7 @@ onMounted(() => fetchRecipes(1))
         <span class="text-sm text-alternate-a-700">Page {{ currentPage }}</span>
         <button
           :disabled="!hasNext"
-          class="rounded-md bg-alternate-a-400 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-alternate-a-500 disabled:opacity-40"
+          class="cursor-pointer rounded-md bg-alternate-a-400 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-alternate-a-500 disabled:opacity-40"
           @click="fetchRecipes(currentPage + 1)"
         >
           Next

@@ -29,14 +29,14 @@ onMounted(async () => {
     <!-- Back link -->
     <button
       @click="router.back()"
-      class="mb-6 text-sm text-alternate-a-400 transition-colors hover:text-alternate-a-500"
+      class="mb-6 cursor-pointer text-sm text-alternate-a-400 transition-colors hover:text-alternate-a-500"
     >
       &larr; Back
     </button>
 
     <!-- Loading skeleton -->
     <div v-if="loading" class="animate-pulse space-y-4">
-      <div class="aspect-[16/9] rounded-lg bg-ground-a-100" />
+      <div class="aspect-video rounded-lg bg-ground-a-100" />
       <div class="h-8 w-2/3 rounded bg-ground-a-100" />
       <div class="h-4 w-1/3 rounded bg-ground-a-100" />
       <div class="h-24 rounded bg-ground-a-100" />
@@ -57,7 +57,7 @@ onMounted(async () => {
         loading="eager"
         decoding="async"
         :alt="recipe.name"
-        class="aspect-[16/9] w-full rounded-lg object-cover"
+        class="aspect-video w-full rounded-lg object-cover"
       />
 
       <h1 class="mt-6 font-serif text-4xl font-bold text-alternate-a-800">

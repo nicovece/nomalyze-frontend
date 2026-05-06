@@ -60,7 +60,7 @@ onBeforeUnmount(clearTimers)
           type="button"
           @click="visible = false"
           aria-label="Dismiss notification"
-          class="text-white/80 hover:text-white"
+          class="cursor-pointer text-white/80 hover:text-white"
         >
           &times;
         </button>

@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Title,
-} from 'chart.js'
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Title } from 'chart.js'
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Title)
 
@@ -16,7 +9,7 @@ const props = defineProps<{
   data: { name: string; cooking_time: number }[]
 }>()
 
-const brandColors = ['#f37f20', '#6fc3aa', '#a9c57c', '#c0a659', '#d7b25b']
+const brandColors = ['#f37f20']
 
 const chartData = computed(() => ({
   labels: props.data.map((d) => d.name),

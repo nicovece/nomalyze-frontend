@@ -36,10 +36,14 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/search',
-      name: 'search',
+      path: '/analyze-search',
+      name: 'analyze-search',
       component: () => import('@/views/SearchView.vue'),
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/search',
+      redirect: { name: 'analyze-search' },
     },
     {
       path: '/:pathMatch(.*)*',

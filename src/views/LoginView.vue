@@ -72,7 +72,7 @@ async function handleLogin() {
         <button
           type="submit"
           :disabled="loading"
-          class="w-full rounded-md bg-accent-400 py-2 font-semibold text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+          class="cursor-pointer w-full rounded-md bg-accent-400 py-2 font-semibold text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
         >
           {{ loading ? 'Signing in...' : 'Sign In' }}
         </button>

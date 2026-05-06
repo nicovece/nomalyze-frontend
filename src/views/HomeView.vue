@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { onMounted, onUnmounted } from 'vue'
 
 const authStore = useAuthStore()
+
+const bodyClass = 'home-page'
+onMounted(() => {
+  document.body.classList.add(bodyClass)
+})
+onUnmounted(() => {
+  document.body.classList.remove(bodyClass)
+})
 </script>
 
 <template>
-  <main class="flex flex-col items-center justify-center px-4 py-24 text-center">
-    <h1 class="font-serif text-5xl font-bold text-alternate-a-800">Nomalyze</h1>
-    <p class="mt-4 max-w-lg text-lg text-alternate-a-700">
+  <main class="flex flex-col items-center justify-center px-4 py-24 text-center min-h-full">
+    <h1 class="font-serif text-5xl font-bold text-white">Nomalyze</h1>
+    <p class="mt-4 max-w-lg text-lg text-white">
       Recipe management and analytics. Search, filter, and visualize your recipe collection.
     </p>
 

@@ -114,13 +114,13 @@ function handleShowAll() {
     <div class="mt-6 flex gap-3">
       <button
         type="submit"
-        class="rounded-md bg-accent-400 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-600"
+        class="rounded-md bg-accent-400 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-600 cursor-pointer"
       >
         Search &amp; Analyze
       </button>
       <button
         type="button"
-        class="rounded-md border border-alternate-a-400 px-5 py-2 text-sm font-semibold text-alternate-a-400 transition-colors hover:bg-alternate-a-100"
+        class="cursor-pointer rounded-md border border-alternate-a-400 px-5 py-2 text-sm font-semibold text-alternate-a-400 transition-colors hover:bg-alternate-a-100"
         @click="handleShowAll"
       >
         Analyze All Recipes
