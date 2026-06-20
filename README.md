@@ -2,9 +2,10 @@
 
 > A Vue 3 + TypeScript single-page app for recipe management and analytics. Consumes a [Django REST Framework backend](https://github.com/nicovece/cf-recipe-app) over JWT. Deployed on Netlify. Lighthouse Performance: **97/100**.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Vue SPA](https://img.shields.io/badge/Vue_SPA-live-success)](https://nomalyze.netlify.app)
-[![Lighthouse](https://img.shields.io/badge/Lighthouse-97-brightgreen)](https://nomalyze.netlify.app)
+[![CI](https://github.com/nicovece/nomalyze-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/nicovece/nomalyze-frontend/actions/workflows/ci.yml)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Vue SPA](https://img.shields.io/badge/Vue_SPA-live-success)
+![Lighthouse](https://img.shields.io/badge/Lighthouse-97-brightgreen)
 
 **[⚡ Live demo](https://nomalyze.netlify.app)** · demo account: `demo` / `example123` (the backend is on Render free tier — first request after idle takes ~30 sec to wake)
 
@@ -34,7 +35,7 @@ This SPA is the second life of the [Nomalyze Django app](https://github.com/nico
 - **Axios** — HTTP client with JWT interceptor (auto-refresh on 401)
 - **Chart.js + vue-chartjs** — interactive bar / pie / line charts
 - **Tailwind CSS 4** — utility-first styling, CSS-based config
-- **Vitest + Vue Test Utils** — 19 unit tests (auth store, RecipeCard, SearchForm)
+- **Vitest + Vue Test Utils** — 27 unit tests (auth store, Axios JWT interceptor, RecipeCard, SearchForm)
 - **ESLint + Prettier** — lint + format
 
 ---
@@ -154,7 +155,7 @@ pnpm preview      # Preview the production build locally
 <summary>Test, lint, format</summary>
 
 ```bash
-pnpm test:unit    # Vitest — 19 unit tests
+pnpm test:unit    # Vitest — 27 unit tests
 pnpm lint
 pnpm format
 ```

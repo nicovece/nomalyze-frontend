@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/**']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: Lint, type-check, test, build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Linters run in check mode (no --fix) so CI fails on issues instead of
+      # silently auto-fixing them, unlike the local `pnpm lint` convenience script.
+      - name: Lint (oxlint)
+        run: pnpm exec oxlint .
+
+      - name: Lint (eslint)
+        run: pnpm exec eslint .
+
+      - name: Type-check
+        run: pnpm exec vue-tsc --build
+
+      - name: Unit tests
+        run: pnpm exec vitest run
+
+      # build-only (not `build`) because type-check already ran as its own step.
+      - name: Build
+        run: pnpm run build-only
